@@ -2,40 +2,54 @@ import sys
 import os
 
 def main(pref, path):
-    if((type(pref) != type("")) or (type(path) != type(""))):
-        print("Invalid arguments, need strings")
-        return(1)
+    pref = str(pref)
+    path = str(path)
+    
     if(not os.path.exists(path)):
         print("Invalid path")
         return(1)
+    
     inpt = os.listdir(path)
+    
     for file in inpt:
         file = os.path.realpath(path + "/" + file)
+        
         if not os.access(file, os.W_OK):
             print("Cannot access file " + file)
         else:
             fldr = os.path.dirname(file) + "/"
+            
             flnm = os.path.basename(file)
             flnm = flnm.replace(pref, "")
             flnm = flnm.strip()
+            
             os.replace(file, fldr + flnm)
+            
+    return(0)
 
 def parser(args):
+    if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 10):
+        print("Please use Python 3.10 or higher.")
+        return(1)
     match len(args):
         case 0:
             print("No app name detected")
             return(1)
         case 1:
-            print("Invalid number of arguments")
             print("usage: " + args[0] + " <prefix> [directory]")
             print()
-            return(1)
+            return(0)
         case 2:
-            main(args[1], os.getcwd())
+            errcode = main(args[1], os.getcwd())
+            return(errcode)
         case _:
-            main(args[1], args[2])
+            errcode = main(args[1], args[2])
+            return(errcode)
 
-parser(sys.argv)
+errcode = parser(sys.argv)
+
+print("Program exited with code " + str(errcode))
+sys.exit(errcode)
 
 """
 RecursiveRenamer.py
